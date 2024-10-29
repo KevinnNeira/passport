@@ -1,65 +1,62 @@
-import express from "express";
-import { loginRouter } from "../routes/login.js";
-import passport from "passport";
-import "../middlewares/google.js";
-import "../middlewares/discord.js";
-import "../middlewares/facebook.js";
+import express from 'express';
+import passport from 'passport';
+import session from 'express-session';
+import { connectDB } from '../utils/db.js';
+import { loginRouter } from '../routes/login.js';
+import discordStrategy from '../middlewares/discord.js';
+import facebookStrategy from '../middlewares/facebook.js';
+import googleStrategy from '../middlewares/google.js';
+import { User } from '../models/user.js';
 
 const app = express();
 
-// MIDDLEWARES
-app.use(express.json());
+// Conectar a MongoDB
+connectDB();
+
+// Middleware de sesión
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'tu_secreto_seguro',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 24 horas
+  }
+}));
+
+// Inicializar Passport
 app.use(passport.initialize());
+app.use(passport.session());
 
-// ROUTES
-// Google routes
-app.get("/auth/google", 
-  passport.authenticate("auth-google", {
-    scope: [
-      "https://www.googleapis.com/auth/userinfo.profile",
-      "https://www.googleapis.com/auth/userinfo.email",
-    ],
-    session: false,
-  })
-);
+// Inicializar estrategias
+discordStrategy();
+facebookStrategy();
+googleStrategy();
 
-app.get("/auth/google/callback",
-  passport.authenticate("auth-google", { session: false }),
-  (req, res) => {
-    res.send(req.user);
+// Serialización/Deserialización
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await User.findById(id);
+    done(null, user);
+  } catch (error) {
+    done(error, null);
   }
-);
+});
 
-// Discord routes
-app.get("/auth/discord", 
-  passport.authenticate("auth-discord", {
-    scope: ['identify', 'email', 'guilds', 'guilds.join'],
-    session: false
-  })
-);
+// Rutas
+app.use('/auth', loginRouter);
 
-app.get("/auth/discord/callback",
-  passport.authenticate("auth-discord", { session: false }),
-  (req, res) => {
-    res.send(req.user);
-  }
-);
+// Manejo de errores
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('¡Algo salió mal!');
+});
 
-// Facebook routes
-app.get("/auth/facebook",
-  passport.authenticate("auth-facebook", {
-    scope: ['email', 'public_profile'],
-    session: false
-  })
-);
-
-app.get("/auth/facebook/callback",
-  passport.authenticate("auth-facebook", { session: false }),
-  (req, res) => {
-    res.send(req.user);
-  }
-);
-
-app.use("/auth", loginRouter);
-
-app.listen(3000, () => console.log("http://localhost:3000"));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en puerto ${PORT}`);
+});
