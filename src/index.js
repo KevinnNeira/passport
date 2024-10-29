@@ -3,6 +3,7 @@ import { loginRouter } from "../routes/login.js";
 import passport from "passport";
 import "../middlewares/google.js";
 import "../middlewares/discord.js";
+import "../middlewares/facebook.js";
 
 const app = express();
 
@@ -11,7 +12,7 @@ app.use(express.json());
 app.use(passport.initialize());
 
 // ROUTES
-// Ruta para iniciar autenticación con Google
+// Google routes
 app.get("/auth/google", 
   passport.authenticate("auth-google", {
     scope: [
@@ -22,7 +23,6 @@ app.get("/auth/google",
   })
 );
 
-// Ruta para callback de Google
 app.get("/auth/google/callback",
   passport.authenticate("auth-google", { session: false }),
   (req, res) => {
@@ -30,7 +30,7 @@ app.get("/auth/google/callback",
   }
 );
 
-// Ruta para iniciar autenticación con Discord
+// Discord routes
 app.get("/auth/discord", 
   passport.authenticate("auth-discord", {
     scope: ['identify', 'email', 'guilds', 'guilds.join'],
@@ -38,9 +38,23 @@ app.get("/auth/discord",
   })
 );
 
-// Ruta para callback de Discord
 app.get("/auth/discord/callback",
   passport.authenticate("auth-discord", { session: false }),
+  (req, res) => {
+    res.send(req.user);
+  }
+);
+
+// Facebook routes
+app.get("/auth/facebook",
+  passport.authenticate("auth-facebook", {
+    scope: ['email', 'public_profile'],
+    session: false
+  })
+);
+
+app.get("/auth/facebook/callback",
+  passport.authenticate("auth-facebook", { session: false }),
   (req, res) => {
     res.send(req.user);
   }
