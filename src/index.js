@@ -2,9 +2,8 @@ import express from 'express';
 import passport from 'passport';
 import session from 'express-session';
 import { connectDB } from '../utils/db.js';
-import { loginRouter } from './routes/login.js';
+import { loginRouter } from '../routes/login.js';
 import discordStrategy from '../middlewares/discord.js';
-import { User } from './models/user.js';
 import { OAuth2Strategy as GoogleStrategy } from "passport-google-oauth";
 import { Strategy as FacebookStrategy } from 'passport-facebook';
 import { config } from "dotenv";
@@ -14,6 +13,9 @@ const app = express();
 
 // Conectar a MongoDB
 connectDB();
+
+// Middleware para archivos estáticos
+app.use(express.static('public'));
 
 // Middleware de sesión
 app.use(session({
@@ -30,18 +32,13 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-
-
-// Lista de emails autorizados para Google
-const emails = ["acastrosandova3@gmail.com"];
-
-
 // Agrega una ruta para la página principal
 app.get('/', (req, res) => {
-  res.send('Bienvenido a la aplicación');
-  // o
-  res.render('home'); // si usas un motor de plantillas
+  // Redirige a index.html
+  res.sendFile('index.html', { root: 'public' });
 });
+
+// (El resto de tu código permanece igual)
 
 // Configuración de Google (mantenida igual)
 passport.use(

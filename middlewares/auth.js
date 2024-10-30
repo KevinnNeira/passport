@@ -1,4 +1,6 @@
-import { User } from '../src/models/user.js';
+import { User } from '../models/user.js';
+
+
 
 export const saveUserData = async (profile, provider) => {
   try {
