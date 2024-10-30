@@ -47,7 +47,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "https://passport-7kej9odrp-kevinnneiras-projects.vercel.app/auth/google/callback",
+      callbackURL: "https://passport-hazel.vercel.app/auth/google/callback",
     },
     function (accessToken, refreshToken, profile, done) {
       const response = emails.includes(profile.emails[0].value);
@@ -72,7 +72,7 @@ passport.use(
     {
       clientID: process.env.FACEBOOK_APP_ID,
       clientSecret: process.env.FACEBOOK_APP_SECRET,
-      callbackURL: "https://passport-7kej9odrp-kevinnneiras-projects.vercel.app/auth/facebook/callback",
+      callbackURL: "https://passport-hazel.vercel.app/auth/facebook/callback",
       profileFields: ['id', 'emails', 'name']
     },
     function(accessToken, refreshToken, profile, done) {

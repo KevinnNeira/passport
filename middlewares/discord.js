@@ -14,7 +14,7 @@ const discordStrategy = () => {
       {
         clientID: process.env.DISCORD_CLIENT_ID,
         clientSecret: process.env.DISCORD_CLIENT_SECRET,
-        callbackURL: "https://passport-7kej9odrp-kevinnneiras-projects.vercel.app/auth/discord/callback",
+        callbackURL: "https://passport-hazel.vercel.app/auth/discord/callback",
         scope: scopes
       },
       async function(accessToken, refreshToken, profile, done) {
