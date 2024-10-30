@@ -30,6 +30,8 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+
+
 // Lista de emails autorizados para Google
 const emails = ["acastrosandova3@gmail.com"];
 
@@ -53,6 +55,10 @@ passport.use(
     }
   )
 );
+
+app.get('/hola', (req, res) => {
+  res.send('Hola Mundo');
+});
 
 // Nueva configuración de Facebook
 passport.use(
