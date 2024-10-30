@@ -1,10 +1,10 @@
 import express from 'express';
 import passport from 'passport';
 import session from 'express-session';
-import { connectDB } from '../utils/db.js';
-import { loginRouter } from '../routes/login.js';
-import discordStrategy from '../middlewares/discord.js';
-import { User } from '../models/user.js';
+import { connectDB } from './utils/db.js';
+import { loginRouter } from './routes/login.js';
+import discordStrategy from './middlewares/discord.js';
+import { User } from './models/user.js';
 import { OAuth2Strategy as GoogleStrategy } from "passport-google-oauth";
 import { Strategy as FacebookStrategy } from 'passport-facebook';
 import { config } from "dotenv";
