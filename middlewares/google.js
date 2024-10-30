@@ -1,4 +1,4 @@
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20'; // Cambia el import
+import { Strategy as GoogleStrategy } from 'passport-google-oauth'; // Cambia el import
 
 // Configuración de Google
 passport.use(
