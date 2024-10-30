@@ -90,18 +90,28 @@ discordStrategy();
 
 // Serialización/Deserialización
 passport.serializeUser((user, done) => {
-  done(null, user.id);
+  if (user.provider === 'google') {
+    done(null, { id: user.id, provider: 'google' });
+  } else if (user.provider === 'facebook') {
+    done(null, { id: user.id, provider: 'facebook' });
+  } else {
+    // Para Discord
+    done(null, { id: user.id, provider: 'discord' });
+  }
 });
 
-passport.deserializeUser(async (id, done) => {
+passport.deserializeUser(async (data, done) => {
   try {
-    const user = await User.findById(id);
+    if (data.provider === 'google' || data.provider === 'facebook') {
+      return done(null, data);
+    }
+    // Para Discord
+    const user = await User.findById(data.id);
     done(null, user);
   } catch (error) {
     done(error, null);
   }
 });
-
 // Rutas
 app.use('/auth', loginRouter);
 
@@ -109,6 +119,23 @@ app.use('/auth', loginRouter);
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('¡Algo salió mal!');
+});
+
+// En index.js
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(500).json({
+    error: process.env.NODE_ENV === 'production' ? 'Internal Server Error' : err.message
+  });
+});
+
+// Ruta de debug
+app.get('/auth/debug', (req, res) => {
+  res.json({
+    session: req.session,
+    user: req.user,
+    isAuthenticated: req.isAuthenticated()
+  });
 });
 
 const PORT = process.env.PORT || 3000;

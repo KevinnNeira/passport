@@ -1,11 +1,6 @@
-import passport from "passport";
-import { OAuth2Strategy as GoogleStrategy } from "passport-google-oauth";
-import { config } from "dotenv";
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20'; // Cambia el import
 
-config();
-
-const emails = ["acastrosandova3@gmail.com"];
-
+// Configuración de Google
 passport.use(
   "auth-google",
   new GoogleStrategy(
@@ -14,34 +9,24 @@ passport.use(
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: "https://passport-7kej9odrp-kevinnneiras-projects.vercel.app/auth/google/callback",
     },
-    function (accessToken, refreshToken, profile, done) {
-      const response = emails.includes(profile.emails[0].value);
-      if (response) {
-        done(null, profile);
-      } else {
-        emails.push(profile.emails[0].value);
-        done(null, profile);
+    async function (accessToken, refreshToken, profile, done) {
+      try {
+        console.log('Google profile:', profile); // Para debugging
+        if (!profile.emails || !profile.emails[0]) {
+          return done(new Error('No email provided'), null);
+        }
+
+        const userEmail = profile.emails[0].value;
+        if (emails.includes(userEmail)) {
+          return done(null, profile);
+        } else {
+          emails.push(userEmail);
+          return done(null, profile);
+        }
+      } catch (error) {
+        console.error('Error en Google Strategy:', error);
+        return done(error, null);
       }
     }
   )
 );
-
-// Serialización específica para Google
-passport.serializeUser((user, done) => {
-  if (user.provider === 'google') {
-    done(null, user);
-  } else {
-    done(null, user.id); // Para Discord mantiene el comportamiento original
-  }
-});
-
-passport.deserializeUser((user, done) => {
-  if (user.provider === 'google') {
-    done(null, user);
-  } else {
-    // Comportamiento original para Discord
-    User.findById(user.id)
-      .then(user => done(null, user))
-      .catch(err => done(err, null));
-  }
-});

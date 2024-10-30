@@ -16,23 +16,30 @@ loginRouter.get('/discord/callback',
 );
 
 // Rutas de Google
+// Rutas de Google
 loginRouter.get('/google',
   passport.authenticate('auth-google', {
-    scope: [
-      "https://www.googleapis.com/auth/userinfo.profile",
-      "https://www.googleapis.com/auth/userinfo.email",
-    ]
+    scope: ['profile', 'email']  // Simplifica el scope
   })
 );
 
 loginRouter.get('/google/callback',
   passport.authenticate('auth-google', {
-    failureRedirect: '/login'
-  }),
-  (req, res) => {
-    res.send(req.user);
-  }
+    failureRedirect: '/login',
+    successRedirect: '/auth/profile'  // Ruta común para todos
+  })
 );
+
+// Ruta común para ver el perfil
+loginRouter.get("/profile", (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ message: 'No autenticado' });
+  }
+  res.json({ 
+    user: req.user,
+    provider: req.user.provider
+  });
+});
 
 // Nuevas rutas de Facebook
 loginRouter.get('/facebook',
