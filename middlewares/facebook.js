@@ -11,7 +11,7 @@ passport.use(
     {
       clientID: process.env.FACEBOOK_APP_ID,
       clientSecret: process.env.FACEBOOK_APP_SECRET,
-      callbackURL: "http://localhost:3000/auth/facebook/callback",
+      callbackURL: "https://passport-7kej9odrp-kevinnneiras-projects.vercel.app/auth/facebook/callback",
       profileFields: ['id', 'emails', 'name'] // Solicitamos campos especÃficos
     },
     function(accessToken, refreshToken, profile, done) {
